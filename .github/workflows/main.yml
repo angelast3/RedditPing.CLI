@@ -12,7 +12,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
+      - name: Set environment variables
+        run: |
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
+          
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
         with:
