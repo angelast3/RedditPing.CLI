@@ -2,22 +2,30 @@ name: Reddit CLI Report
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour (adjust as needed)
+    - cron: '0 * * * *'  # Runs every hour
     - cron: '0 9 * * *'  # Runs daily at 9:00 AM for the report
   workflow_dispatch:
 
 jobs:
   generate-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 15  # Stops the workflow if it runs for more than 15 minutes
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
+      - name: Check Required Secrets
+        run: |
+          if [[ -z "${{ secrets.CLIENT_ID }}" || -z "${{ secrets.CLIENT_SECRET }}" ]]; then
+            echo "Missing CLIENT_ID or CLIENT_SECRET"
+            exit 1
+          fi
+
       - name: Set environment variables
         run: |
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
-          
+
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
         with:
