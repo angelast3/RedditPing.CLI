@@ -59,7 +59,7 @@ public class Program
             string[] commandArgs = args.Length > 0 ? args : [];
             await rootCommand.InvokeAsync(commandArgs);
         }
-
+#if DEBUG
         while (true)
         {
             var input = Console.ReadLine();
@@ -74,6 +74,9 @@ public class Program
             }
             // Run the CLI
             await rootCommand.InvokeAsync(commandArgs);
-        }
+        } // <-- This closing brace was missing
+#else
+    await rootCommand.InvokeAsync(commandArgs);
+#endif
     }
 }
