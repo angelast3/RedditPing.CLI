@@ -15,8 +15,8 @@ jobs:
         
       - name: Set environment variables
         run: |
-          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
-          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
           
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
@@ -34,15 +34,16 @@ jobs:
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
 
-      - name: Run CLI subreddit
-        run: dotnet run --project RedditPing.CLI -- subreddit list -search-type 0 -limit 3 || exit 1
-
       - name: Run CLI post
         run: dotnet run --project RedditPing.CLI -- post add -search-type 0 -limit 5 || exit 1
 
       - name: Run CLI report
         if: github.scheduled
         run: dotnet run --project RedditPing.CLI -- report daily || exit 1
+
+      - name: Run CLI subreddit
+        if: github.scheduled
+        run: dotnet run --project RedditPing.CLI -- subreddit list -search-type 0 -limit 3 || exit 1
 
       - name: Upload Report
         if: github.scheduled

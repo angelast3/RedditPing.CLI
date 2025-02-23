@@ -18,7 +18,6 @@ public class Program
             .AddEnvironmentVariables()
             .Build();
 
-        // Register ConfigurationOptions as IOptions<ConfigurationOptions>
         var serviceProvider = new ServiceCollection()
             .Configure<ConfigurationOptions>(configuration.GetSection("Configuration"))
             .AddSingleton<IApiClient, ApiClient>()
