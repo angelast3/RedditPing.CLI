@@ -21,7 +21,7 @@ namespace RedditPing.CLI.Commands
         {
             var subCommand = new Command("daily", "Generate a daily trending report");
 
-            subCommand.SetHandler(async h =>
+            subCommand.SetHandler(h =>
             {
                 try
                 {
@@ -72,15 +72,12 @@ namespace RedditPing.CLI.Commands
                         // Generate line charts for each subreddit
                         foreach (var subredditData in reportInfo.SubredditData)
                         {
-                            // Generate line chart for the subreddit
                             var lineChartImagePath = GenerateLineChart(subredditData);
                             column.Item().Image(lineChartImagePath);
                             column.Item().PaddingBottom(20);
 
-                            // Add most popular posts (using average score)
                             column.Item().Text("Most Popular Posts (Average Score):")
                                 .Style(TextStyle.Default.FontSize(12).Bold());
-                                //.PaddingBottom(10);
 
                             // Get the top 5 posts by average score
                             var allPosts = subredditData.PostsByTimestamp
@@ -91,7 +88,7 @@ namespace RedditPing.CLI.Commands
                                         Post = g.First(), // Use the first post for metadata
                                         AverageScore = g.Average(p => p.score) // Calculate average score
                                     })
-                                    .OrderByDescending(p => p.AverageScore) // Order by average score
+                                    .OrderByDescending(p => p.AverageScore)
                                     .ToList();
 
                             // Display the top post
@@ -123,11 +120,9 @@ namespace RedditPing.CLI.Commands
         // Generate a Line chart using Plot
         private static string GenerateLineChart(SubredditData subredditData)
         {
-            // Extract data for the subreddit
             var subreddit = subredditData.Subreddit;
             var postsByTimestamp = subredditData.PostsByTimestamp;
 
-            // Create a new plot
             var plot = new Plot();
             plot.Title(subreddit.display_name); // Subreddit title as chart title
             plot.XLabel("Time (hh:mm:ss)");
@@ -155,12 +150,12 @@ namespace RedditPing.CLI.Commands
                     {
                         var currentTimestamp = timestamps[i];
                         scores[i] = postsByTimestamp[currentTimestamp]
-                            .FirstOrDefault(p => p.id == post.id)?.score ?? double.NaN; // Match scores to timestamps
+                            .FirstOrDefault(p => p.id == post.id)?.score ?? double.NaN;
                     }
 
-                    var line = plot.Add.Scatter(timestamps.Select((t, index) => (double)index).ToArray(), scores); // Use index for X-axis
-                    line.LegendText = post.title; // Add label for legend
-                    line.Color = colors[addedPosts.Count % colors.Length]; // Assign a unique color
+                    var line = plot.Add.Scatter(timestamps.Select((t, index) => (double)index).ToArray(), scores);
+                    line.LegendText = post.title;
+                    line.Color = colors[addedPosts.Count % colors.Length];
 
                     // Mark the post as added to the legend
                     addedPosts.Add(post.id);
@@ -183,7 +178,6 @@ namespace RedditPing.CLI.Commands
             return lineChartImagePath;
         }
 
-        // Private method to compose a post card
         private static void ComposePostCard(IContainer container, RedditPost post, double averageScore, bool isTopPost)
         {
             container
@@ -191,11 +185,9 @@ namespace RedditPing.CLI.Commands
                 .Padding(20)
                 .Column(column =>
                 {
-                    // Post title
                     column.Item().Text(post.title)
                         .Style(TextStyle.Default.FontSize(12).Bold());
 
-                    // Score and comments
                     column.Item().Row(row =>
                     {
                         row.RelativeItem().Text($"▲ {averageScore:F0}")
