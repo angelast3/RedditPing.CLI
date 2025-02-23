@@ -9,7 +9,7 @@ on:
 jobs:
   generate-report:
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Stops the workflow if it runs for more than 15 minutes
+    timeout-minutes: 5  # Stops the workflow if it runs for more than 15 minutes
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -39,6 +39,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      - name: Download reportData.json from artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: reportData
+
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
 
@@ -47,6 +52,12 @@ jobs:
 
       - name: Run CLI post
         run: dotnet run --project RedditPing.CLI -- post add -search-type 0 -limit 5 || exit 1
+
+      - name: Upload reportData.json as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+            name: reportData
+            path: reportData.json
 
       - name: Run CLI report
         if: github.scheduled

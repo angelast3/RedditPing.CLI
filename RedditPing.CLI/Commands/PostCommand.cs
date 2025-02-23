@@ -61,7 +61,7 @@ namespace RedditPing.CLI.Commands
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error fetching posts"); // Log error
+                    _logger.LogError(ex, "Error fetching posts");
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });
@@ -105,8 +105,16 @@ namespace RedditPing.CLI.Commands
                             foreach (var item in redditResponse)
                             {
                                 if (!item.data.over_18)
+                                {
                                     posts.Add(item.data);
+                                    Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions
+                                    {
+                                        WriteIndented = true,
+                                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                                    }));
+                                }
                             }
+
 
                             subredditPosts.Add(new SubredditReport()
                             {
