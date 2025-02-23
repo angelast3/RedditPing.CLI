@@ -34,18 +34,18 @@ public class AuthenticationTokenService : IAuthenticationTokenService
     {
         try
         {
-            _logger.LogDebug("Starting access token retrieval...");
+            _logger.LogDebug("Auth Service: Starting access token retrieval...");
 
             var clientId = _config.ClientConfig?.ClientId;
             var clientSecret = _config.ClientConfig?.ClientSecret;
 
             if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
             {
-                _logger.LogError("ClientId or ClientSecret is missing in configuration.");
+                _logger.LogError("Auth Service: ClientId or ClientSecret is missing in configuration.");
                 throw new InvalidOperationException("ClientId or ClientSecret is missing in configuration.");
             }
 
-            _logger.LogDebug("ClientId and ClientSecret successfully retrieved from configuration.");
+            _logger.LogDebug("Auth Service: ClientId and ClientSecret successfully retrieved from configuration.");
 
             var request = new HttpRequestMessage(HttpMethod.Post, AppConstants.TokenUrl)
             {
@@ -60,18 +60,18 @@ public class AuthenticationTokenService : IAuthenticationTokenService
             request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeader);
             request.Headers.UserAgent.ParseAdd("RedditPing.CLI/1.0.0 (by /u/Possible_Exit334)");
 
-            _logger.LogDebug("Sending token request to {TokenUrl}...", AppConstants.TokenUrl);
+            _logger.LogDebug("Auth Service: Sending token request...");
 
             var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to retrieve access token. Status: {StatusCode}, Response: {Response}", response.StatusCode, errorMessage);
+                _logger.LogError("Auth Service: Failed to retrieve access token. Status: {StatusCode}, Response: {Response}", response.StatusCode, errorMessage);
                 response.EnsureSuccessStatusCode();
             }
 
-            _logger.LogDebug("Token request successful. Parsing response...");
+            _logger.LogDebug("Auth Service: Token request successful. Parsing response...");
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
             using var jsonDoc = JsonDocument.Parse(jsonResponse);
@@ -79,7 +79,7 @@ public class AuthenticationTokenService : IAuthenticationTokenService
             if (!jsonDoc.RootElement.TryGetProperty("access_token", out var accessTokenElement) ||
                 !jsonDoc.RootElement.TryGetProperty("expires_in", out var expiresInElement))
             {
-                _logger.LogError("Access token response is missing required fields: {Response}", jsonResponse);
+                _logger.LogError("Auth Service: Access token response is missing required fields: {Response}", jsonResponse);
                 throw new InvalidOperationException("Access token response is missing required fields.");
             }
 
@@ -92,15 +92,15 @@ public class AuthenticationTokenService : IAuthenticationTokenService
 
             if (string.IsNullOrWhiteSpace(accessToken))
             {
-                _logger.LogError("Access token could not be retrieved.");
+                _logger.LogError("Auth Service: Access token could not be retrieved.");
                 throw new InvalidOperationException("Access token could not be retrieved.");
             }
 
-            _logger.LogDebug("Access token successfully retrieved. Expires in {ExpiresIn} seconds.", expiresIn);
+            _logger.LogDebug("Auth Service: Access token successfully retrieved. Expires in {ExpiresIn} seconds.", expiresIn);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while retrieving the access token.");
+            _logger.LogError("Auth Service: An error occurred while retrieving the access token. Error: {Error}", ex.Message);
             throw;
         }
     }
