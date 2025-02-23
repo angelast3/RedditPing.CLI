@@ -43,6 +43,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
             name: reportData
+        continue-on-error: true
 
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
