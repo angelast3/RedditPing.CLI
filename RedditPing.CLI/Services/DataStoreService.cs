@@ -24,7 +24,7 @@ namespace RedditPing.CLI.Services
             {
                 reportInfo = new ReportInfo(); 
                 reportInfo.Date = DateTime.UtcNow.Date.ToString(AppConstants.DateFormat);
-                reportInfo.SubredditData = new List<SubredditData>();
+                reportInfo.SubredditData = [];
             }
             //if there are already applied do not override existing
             else

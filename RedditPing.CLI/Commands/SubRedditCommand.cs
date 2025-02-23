@@ -15,6 +15,7 @@ namespace RedditPing.CLI.Commands
             var postCommand = new Command("subreddit", "Search subreddits");
 
             postCommand.AddCommand(ListSubredditsCommand());
+            postCommand.AddCommand(AddSubredditsCommand());
 
             return postCommand;
         }
@@ -72,6 +73,55 @@ namespace RedditPing.CLI.Commands
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });
+
+            return subCommand;
+        }
+
+        private Command AddSubredditsCommand()
+        {
+            var subCommand = new Command("store-defined", "Get detail of all defined subreddits and store them for report generation");
+
+            //subCommand.SetHandler(async h =>
+            //{
+            //    try
+            //    {
+            //        _logger.LogInformation("Fetching subreddits...");
+            //        var subreddits = _config?.TrackingSettings?.Subreddits;
+            //        var url = AppConstants.SubRedditsBaseUrl + $"{type.ToString().ToLower()}.json?limit={limit}";
+
+            //        var jsonResponse = await _apiClient.GetAsync(url);
+            //        var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<SubReddit>>>(jsonResponse)
+            //            ?? [];
+
+            //        foreach (var subreddit in redditResponse)
+            //        {
+            //            if (!subreddit.data.over18)
+            //                Console.WriteLine(JsonSerializer.Serialize(subreddit, new JsonSerializerOptions
+            //                {
+            //                    WriteIndented = true,
+            //                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            //                }));
+            //        }
+
+            //        var subredditsList = redditResponse.Select(x => new SubReddit
+            //        {
+            //            id = x.data.id,
+            //            name = x.data.name,
+            //            title = x.data.title,
+            //            display_name = x.data.display_name,
+            //            display_name_prefixed = x.data.display_name_prefixed
+            //        }).ToList();
+
+            //        _dataStoreService.UpdateSubreddits(subredditsList);
+
+            //        _logger.LogInformation("Successfully fetched and updated subreddits.");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex, "Error fetching subreddits"); // Log error
+            //        Console.WriteLine($"Error: {ex.Message}");
+            //    }
+            //});
 
             return subCommand;
         }
