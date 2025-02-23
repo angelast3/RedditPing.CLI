@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using RedditPing.CLI.Commands;
 using RedditPing.CLI.Configuration.Model;
 using RedditPing.CLI.Services;
@@ -31,9 +32,10 @@ public class Program
         // Resolve the ApiClient from the service provider
         var apiClient = serviceProvider.GetService<IApiClient>();
         var dataStoreService = serviceProvider.GetService<IDataStoreService>();
+        var logger = serviceProvider.GetService<ILogger<CommandBuilder>>();
 
         // Define the root command
-        var rootCommand = new CommandBuilder(apiClient, dataStoreService).BuildRootCommand();
+        var rootCommand = new CommandBuilder(apiClient, dataStoreService, logger).BuildRootCommand();
 
         if (args.Length > 0 && args.Any(x => x.Equals("exit", StringComparison.OrdinalIgnoreCase)))
         {

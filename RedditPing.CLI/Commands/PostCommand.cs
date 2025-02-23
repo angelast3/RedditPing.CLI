@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using RedditPing.CLI.Constants;
 using RedditPing.CLI.Enums;
 using RedditPing.CLI.Models;
@@ -21,8 +22,8 @@ namespace RedditPing.CLI.Commands
 
         private Command ListPostsCommand()
         {
-            var subCommand = new Command("list", "Get posts based on a topic");
-            var topicOption = new Option<string>(aliases: ["-t", "-topic"], "Topic to filter posts by");
+            var subCommand = new Command("list", "List posts based on a subreddit");
+            var topicOption = new Option<string>(aliases: ["-sr", "-subreddit"], "Topic to filter posts by");
             var typeOption = new Option<PostType>(aliases: ["-st", "-search-type"], () => 0, "Search posts by type. Hot - 0, New - 1, Top - 2, Rising - 3");
             var limitOption = new Option<int>(aliases: ["-l", "-limit"], () => 10, "Number of posts to fetch");
 
@@ -37,25 +38,30 @@ namespace RedditPing.CLI.Commands
                     var topic = h.ParseResult.GetValueForOption(topicOption);
                     var type = h.ParseResult.GetValueForOption(typeOption);
                     var limit = h.ParseResult.GetValueForOption(limitOption);
-                     
+
+                    _logger.LogInformation("Fetching posts for topic: {Topic}, type: {Type}, limit: {Limit}", topic, type, limit); // Log info
+
                     var url = AppConstants.PostsBaseUrl + $"r/{topic}/{type.ToString().ToLower()}.json?limit={limit}";
                     var jsonResponse = await _apiClient.GetAsync(url);
 
-                    var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse) 
+                    _logger.LogInformation("Received response from API");
+
+                    var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse)
                         ?? new List<RedditResponse<RedditPost>>();
 
                     foreach (var post in redditResponse)
                     {
-                        if(!post.data.over_18)
+                        if (!post.data.over_18)
                             Console.WriteLine(JsonSerializer.Serialize(post, new JsonSerializerOptions
                             {
                                 WriteIndented = true,
                                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-
                             }));
                     }
                 }
-                catch(Exception ex) {
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error fetching posts"); // Log error
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });
@@ -65,7 +71,7 @@ namespace RedditPing.CLI.Commands
 
         private Command ListPopularPostsCommand()
         {
-            var subCommand = new Command("add", "Get posts from latest trending subreddits.");
+            var subCommand = new Command("add", "Retrive posts from the defined subreddits and save them for report generation.");
             var typeOption = new Option<PostType>(aliases: ["-st", "-search-type"], () => 0, "Search posts by type. Hot - 0, New - 1, Top - 2, Rising - 3");
             var limitOption = new Option<int>(aliases: ["-l", "-limit"], () => 5, "Number of posts to fetch");
 
@@ -78,6 +84,8 @@ namespace RedditPing.CLI.Commands
                 {
                     var type = h.ParseResult.GetValueForOption(typeOption);
                     var limit = h.ParseResult.GetValueForOption(limitOption);
+
+                    _logger.LogInformation("Fetching popular posts, type: {Type}, limit: {Limit}", type, limit);
 
                     var reportnfo = _dataStoreService.LoadReportInfo();
 
@@ -96,7 +104,6 @@ namespace RedditPing.CLI.Commands
                             var posts = new List<RedditPost>();
                             foreach (var item in redditResponse)
                             {
-                                //if over 18, fetch again?
                                 if (!item.data.over_18)
                                     posts.Add(item.data);
                             }
@@ -110,11 +117,17 @@ namespace RedditPing.CLI.Commands
                         }
                         _dataStoreService.UpdatePosts(subredditPosts);
 
+                        _logger.LogInformation("Successfully retrieved posts.");
                         Console.WriteLine($"Successfully retrieved posts!");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No subreddit data found for report info.");
                     }
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Error fetching popular posts");
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });

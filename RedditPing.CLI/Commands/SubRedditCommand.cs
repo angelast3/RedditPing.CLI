@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using RedditPing.CLI.Constants;
 using RedditPing.CLI.Enums;
 using RedditPing.CLI.Models;
@@ -34,12 +35,13 @@ namespace RedditPing.CLI.Commands
                     var type = h.ParseResult.GetValueForOption(typeOption);
                     var limit = h.ParseResult.GetValueForOption(limitOption);
 
+                    _logger.LogInformation("Fetching subreddits, type: {Type}, limit: {Limit}", type, limit);
+
                     var url = AppConstants.SubRedditsBaseUrl + $"{type.ToString().ToLower()}.json?limit={limit}";
 
                     var jsonResponse = await _apiClient.GetAsync(url);
                     var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<SubReddit>>>(jsonResponse)
                         ?? new List<RedditResponse<SubReddit>>();
-
 
                     foreach (var subreddit in redditResponse)
                     {
@@ -48,7 +50,6 @@ namespace RedditPing.CLI.Commands
                             {
                                 WriteIndented = true,
                                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-
                             }));
                     }
 
@@ -63,9 +64,11 @@ namespace RedditPing.CLI.Commands
 
                     _dataStoreService.UpdateSubreddits(subredditsList);
 
+                    _logger.LogInformation("Successfully fetched and updated subreddits.");
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Error fetching subreddits"); // Log error
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });
