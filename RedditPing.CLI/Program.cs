@@ -58,6 +58,7 @@ public class Program
             string command = args[0];
             string[] commandArgs = args.Length > 0 ? args : [];
             await rootCommand.InvokeAsync(commandArgs);
+            return;
         }
 
 #if DEBUG
@@ -75,7 +76,7 @@ public class Program
             }
             // Run the CLI
             await rootCommand.InvokeAsync(args);
-        } // <-- This closing brace was missing
+        } 
 #endif
     }
 }
