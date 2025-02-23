@@ -47,7 +47,7 @@ namespace RedditPing.CLI.Commands
                     _logger.LogInformation("Received response from API");
 
                     var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse)
-                        ?? new List<RedditResponse<RedditPost>>();
+                        ?? [];
 
                     foreach (var post in redditResponse)
                     {
@@ -99,7 +99,7 @@ namespace RedditPing.CLI.Commands
                             var jsonResponse = await _apiClient.GetAsync(url);
 
                             var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse)
-                                ?? new List<RedditResponse<RedditPost>>();
+                                ?? [];
 
                             var posts = new List<RedditPost>();
                             foreach (var item in redditResponse)

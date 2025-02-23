@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using RedditPing.CLI.Commands;
 using RedditPing.CLI.Configuration.Model;
@@ -14,22 +15,31 @@ public class Program
     public static async Task Main(string[] args)
     {
         IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-            .AddEnvironmentVariables()
-            .Build();
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build();
 
-        var serviceProvider = new ServiceCollection()
+        var serviceCollection = new ServiceCollection()
             .Configure<ConfigurationOptions>(configuration.GetSection("Configuration"))
             .AddSingleton<IApiClient, ApiClient>()
             .AddSingleton<IAuthenticationTokenService, AuthenticationTokenService>()
             .AddTransient<IDataStoreService, DataStoreService>()
             .AddSingleton<IReportService, ReportService>()
             .AddSingleton<ISchedulerService, SchedulerService>()
-            .AddHttpClient()
-            .BuildServiceProvider();
+            .AddLogging(builder =>
+            {
+                builder.AddConsole(); // Add console logging provider here
+            });
 
-        // Resolve the ApiClient from the service provider
+        serviceCollection.AddHttpClient("RedditApi", client =>  // AddHttpClient BEFORE BuildServiceProvider
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // Resolve the services
         var apiClient = serviceProvider.GetService<IApiClient>();
         var dataStoreService = serviceProvider.GetService<IDataStoreService>();
         var logger = serviceProvider.GetService<ILogger<CommandBuilder>>();
@@ -46,7 +56,7 @@ public class Program
         {
             // Parse the command and arguments
             string command = args[0];
-            string[] commandArgs = args.Length > 0 ? args : Array.Empty<string>();
+            string[] commandArgs = args.Length > 0 ? args : [];
             await rootCommand.InvokeAsync(commandArgs);
         }
 

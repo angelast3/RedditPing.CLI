@@ -41,7 +41,7 @@ namespace RedditPing.CLI.Commands
 
                     var jsonResponse = await _apiClient.GetAsync(url);
                     var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<SubReddit>>>(jsonResponse)
-                        ?? new List<RedditResponse<SubReddit>>();
+                        ?? [];
 
                     foreach (var subreddit in redditResponse)
                     {
