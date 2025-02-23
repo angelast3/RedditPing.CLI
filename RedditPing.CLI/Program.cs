@@ -76,8 +76,6 @@ public class Program
             // Run the CLI
             await rootCommand.InvokeAsync(args);
         } // <-- This closing brace was missing
-#else
-    await rootCommand.InvokeAsync(args);
 #endif
     }
 }
