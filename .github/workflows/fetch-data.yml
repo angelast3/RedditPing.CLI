@@ -34,8 +34,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: reportData
-          path: .
-        continue-on-error: true
+          path: reportData  # Ensure it downloads to a folder
+        continue-on-error: true  
+
+      - name: Extract reportData.json
+        run: |
+          if [ -f "reportData/reportData.json" ]; then
+            mv reportData/reportData.json .
+          else
+            echo "{}" > reportData.json  # Creates an empty JSON if missing
+          fi
+
 
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
