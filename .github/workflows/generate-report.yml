@@ -13,29 +13,34 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check Required Secrets
-        run: |
-          if [[ -z "${{ secrets.CLIENT_ID }}" || -z "${{ secrets.CLIENT_SECRET }}" ]]; then
-            echo "Missing CLIENT_ID or CLIENT_SECRET"
-            exit 1
-          fi
-
-      - name: Set environment variables
-        run: |
-          echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
-          echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
-
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.0.x'
 
+      # Cache reportData.json
+      - name: Restore reportData.json from cache
+        id: cache-restore
+        uses: actions/cache@v3
+        with:
+          path: reportData.json
+          key: report-data
+          restore-keys: report-data-
+
       - name: Download latest reportData.json
         uses: actions/download-artifact@v4
         with:
           name: reportData
-          path: .
-        continue-on-error: true
+          path: reportData  # Ensure it downloads to a folder
+        continue-on-error: true  
+
+      - name: Extract reportData.json
+        run: |
+          if [ -f "reportData/reportData.json" ]; then
+            mv reportData/reportData.json .
+          else
+            echo "{}" > reportData.json  # Creates an empty JSON if missing
+          fi
 
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
@@ -49,3 +54,10 @@ jobs:
           name: DailyReport
           path: DailyReport.pdf
           if-no-files-found: error
+
+      # Save updated reportData.json to cache
+      - name: Save reportData.json to cache
+        uses: actions/cache@v3
+        with:
+          path: reportData.json
+          key: report-data
