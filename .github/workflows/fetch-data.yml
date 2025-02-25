@@ -51,6 +51,12 @@ jobs:
           echo "Saving updated reportData.json"
           cat reportData.json
 
+      - name: Upload reportData.json as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: reportData
+            path: reportData.json
+
       - name: Save reportData.json to cache
         uses: actions/cache@v3
         with:
@@ -58,9 +64,3 @@ jobs:
           key: reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}-${{ hashFiles('reportData.json') }}-${{ github.run_id }}
           restore-keys: |
             reportData-
-
-      - name: Upload reportData.json as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-            name: reportData
-            path: reportData.json
