@@ -53,3 +53,10 @@ jobs:
           key: ${{ runner.os }}-reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}
           restore-keys: |
             ${{ runner.os }}-reportData-
+        
+      - name: Upload reportData.json as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: reportData
+            path: reportData.json
+
