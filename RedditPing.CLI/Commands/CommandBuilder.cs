@@ -30,22 +30,16 @@ namespace RedditPing.CLI.Commands
 
         public RootCommand BuildRootCommand()
         {
-            _logger.LogInformation($"Creating commands...");
-
             var rootCommand = new RootCommand
             {
                 Name = AppConstants.CLIName,
                 Description = "A CLI app for interacting with Reddit"
             };
 
-            _logger.LogInformation($"Root command '{rootCommand.Name}' created.");
-
             //Add commands
             rootCommand.AddCommand(BuildPostCommand());
             rootCommand.AddCommand(BuildSubredditCommand());
             rootCommand.AddCommand(BuildReportCommand());
-
-            _logger.LogInformation($"All commands added to root command.");
 
             return rootCommand;
         }

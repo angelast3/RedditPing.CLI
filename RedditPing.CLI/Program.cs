@@ -75,7 +75,7 @@ public class Program
                 return;
             }
             // Run the CLI
-            await rootCommand.InvokeAsync(args);
+            await rootCommand.InvokeAsync(commandArgs);
         } 
 #endif
     }

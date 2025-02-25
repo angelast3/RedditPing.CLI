@@ -17,9 +17,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: reportData.json
-          key: $reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}-${{ hashFiles('reportData.json') }}
+          key: reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}-${{ hashFiles('reportData.json') }}
           restore-keys: |
-            $reportData-
+            reportData-
 
       - name: Check Required Secrets
         run: |
@@ -50,9 +50,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: reportData.json
-          key: $reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}-${{ hashFiles('reportData.json') }}
+          key: reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}-${{ hashFiles('reportData.json') }}
           restore-keys: |
-            $reportData-
+            reportData-
         
       - name: Upload reportData.json as Artifact
         uses: actions/upload-artifact@v4

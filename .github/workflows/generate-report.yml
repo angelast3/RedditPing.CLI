@@ -17,9 +17,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: reportData.json
-          key: ${{ runner.os }}-reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}
+          key: reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-reportData-
+            reportData-
 
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
