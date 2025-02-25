@@ -1,0 +1,54 @@
+name: Fetch Subreddits & Posts
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Required Secrets
+        run: |
+          if [[ -z "${{ secrets.CLIENT_ID }}" || -z "${{ secrets.CLIENT_SECRET }}" ]]; then
+            echo "Missing CLIENT_ID or CLIENT_SECRET"
+            exit 1
+          fi
+
+      - name: Set environment variables
+        run: |
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set up .NET 8.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download previous reportData.json (if exists)
+        uses: actions/download-artifact@v4
+        with:
+          name: reportData
+          path: .
+        continue-on-error: true
+
+      - name: Build CLI
+        run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
+
+      - name: Run CLI subreddit fetch
+        run: dotnet run --project RedditPing.CLI -- subreddit list -search-type 0 -limit 3 || exit 1
+
+      - name: Run CLI post fetch
+        run: dotnet run --project RedditPing.CLI -- post add -search-type 0 -limit 5 || exit 1
+
+      - name: Upload updated reportData.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportData
+          path: reportData.json
+          if-no-files-found: error

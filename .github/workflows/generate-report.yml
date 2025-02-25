@@ -1,0 +1,51 @@
+name: Generate Daily Report
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Runs daily at 9:00 AM
+  workflow_dispatch:
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Required Secrets
+        run: |
+          if [[ -z "${{ secrets.CLIENT_ID }}" || -z "${{ secrets.CLIENT_SECRET }}" ]]; then
+            echo "Missing CLIENT_ID or CLIENT_SECRET"
+            exit 1
+          fi
+
+      - name: Set environment variables
+        run: |
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
+
+      - name: Set up .NET 8.0
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download latest reportData.json
+        uses: actions/download-artifact@v4
+        with:
+          name: reportData
+          path: .
+        continue-on-error: true
+
+      - name: Build CLI
+        run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
+
+      - name: Run CLI report generation
+        run: dotnet run --project RedditPing.CLI -- report daily || exit 1
+
+      - name: Upload Daily Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: DailyReport
+          path: DailyReport.pdf
+          if-no-files-found: error
