@@ -13,34 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Cache reportData.json
+        uses: actions/cache@v3
+        with:
+          path: reportData.json
+          key: ${{ runner.os }}-reportData-${{ hashFiles('**/RedditPing.CLI/RedditPing.CLI.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-reportData-
+
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '8.0.x'
 
-      # Cache reportData.json
-      - name: Restore reportData.json from cache
-        id: cache-restore
-        uses: actions/cache@v3
-        with:
-          path: reportData.json
-          key: report-data
-          restore-keys: report-data-
-
-      - name: Download latest reportData.json
-        uses: actions/download-artifact@v4
-        with:
-          name: reportData
-          path: reportData  # Ensure it downloads to a folder
-        continue-on-error: true  
-
-      - name: Extract reportData.json
-        run: |
-          if [ -f "reportData/reportData.json" ]; then
-            mv reportData/reportData.json .
-          else
-            echo "{}" > reportData.json  # Creates an empty JSON if missing
-          fi
 
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
@@ -55,9 +40,3 @@ jobs:
           path: DailyReport.pdf
           if-no-files-found: error
 
-      # Save updated reportData.json to cache
-      - name: Save reportData.json to cache
-        uses: actions/cache@v3
-        with:
-          path: reportData.json
-          key: report-data
