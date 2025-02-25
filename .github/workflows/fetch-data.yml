@@ -46,10 +46,12 @@ jobs:
       - name: Run CLI post fetch
         run: dotnet run --project RedditPing.CLI -- post add -search-type 0 -limit 5 || exit 1
 
-      - name: Save reportData.json to cache (Debugging Step)
+      - name: Debug reportData.json content before caching
         run: |
           echo "Saving updated reportData.json"
           cat reportData.json
+
+      - name: Save reportData.json to cache
         uses: actions/cache@v3
         with:
           path: reportData.json
