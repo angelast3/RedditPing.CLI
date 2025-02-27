@@ -100,12 +100,19 @@ namespace RedditPing.CLI.Commands
                             ?? new SubReddit();
 
                         if (!redditDetailsResponse.Over18)
-                            Console.WriteLine(JsonSerializer.Serialize(redditDetailsResponse, new JsonSerializerOptions
-                            {
+                        {
+                            Console.WriteLine(JsonSerializer.Serialize(
+                            new {
+                                redditDetailsResponse.Name,
+                                redditDetailsResponse.Title,
+                                redditDetailsResponse.DisplayName
+                            }, 
+                            new JsonSerializerOptions {
                                 WriteIndented = true,
                                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                                
+
                             }));
+                        }
 
                         subredditsList.Add(new SubReddit
                         {
