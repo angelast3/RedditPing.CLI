@@ -1,12 +1,13 @@
 ﻿using System.CommandLine;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RedditPing.CLI.Commands;
 using RedditPing.CLI.Configuration.Model;
 using RedditPing.CLI.Services;
 using RedditPing.CLI.Services.Interfaces;
+using Serilog;
 
 #nullable disable
 namespace RedditPing.CLI;
@@ -14,38 +15,21 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables()
-        .Build();
+        IConfiguration configuration = BuildConfiguration();
 
-        var serviceCollection = new ServiceCollection()
-            .Configure<ConfigurationOptions>(configuration.GetSection("Configuration"))
-            .AddSingleton<IApiClient, ApiClient>()
-            .AddSingleton<IAuthenticationTokenService, AuthenticationTokenService>()
-            .AddTransient<IDataStoreService, DataStoreService>()
-            .AddSingleton<IReportService, ReportService>()
-            .AddSingleton<ISchedulerService, SchedulerService>()
-            .AddLogging(builder =>
-            {
-                builder.AddConsole(); // Add console logging provider here
-            });
+        // Register services
+        var serviceProvider = BuildServiceProvider(configuration);
 
-        serviceCollection.AddHttpClient("RedditApi", client =>  // AddHttpClient BEFORE BuildServiceProvider
-        {
-            client.Timeout = TimeSpan.FromSeconds(30);
-        });
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        // Resolve the services
+        // Resolve services
+        var logger = serviceProvider.GetRequiredService<ILogger<CommandBuilder>>();
         var apiClient = serviceProvider.GetService<IApiClient>();
         var dataStoreService = serviceProvider.GetService<IDataStoreService>();
-        var logger = serviceProvider.GetService<ILogger<CommandBuilder>>();
+        var options = serviceProvider.GetService<IOptions<ConfigurationOptions>>();
+
+        logger.LogInformation("Application started.");
 
         // Define the root command
-        var rootCommand = new CommandBuilder(apiClient, dataStoreService, logger).BuildRootCommand();
+        var rootCommand = new CommandBuilder(apiClient, dataStoreService, logger, options).BuildRootCommand();
 
         if (args.Length > 0 && args.Any(x => x.Equals("exit", StringComparison.OrdinalIgnoreCase)))
         {
@@ -78,5 +62,44 @@ public class Program
             await rootCommand.InvokeAsync(commandArgs);
         } 
 #endif
+    }
+
+    private static IConfiguration BuildConfiguration()
+    {
+        return new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+    }
+
+    // Separate method to build service provider
+    private static ServiceProvider BuildServiceProvider(IConfiguration configuration)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.File("Logs/app.log", rollingInterval: RollingInterval.Day)
+            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error)
+            .CreateLogger();
+
+        var serviceCollection = new ServiceCollection()
+            .Configure<ConfigurationOptions>(configuration.GetSection("Configuration"))
+            .AddSingleton<IApiClient, ApiClient>()
+            .AddSingleton<IAuthenticationTokenService, AuthenticationTokenService>()
+            .AddTransient<IDataStoreService, DataStoreService>()
+            .AddSingleton<IReportService, ReportService>()
+            .AddSingleton<ISchedulerService, SchedulerService>()
+            .AddLogging(builder =>
+            {
+                builder.ClearProviders();
+                builder.AddSerilog();
+            });
+
+        serviceCollection.AddHttpClient("RedditApi", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        return serviceCollection.BuildServiceProvider();
     }
 }

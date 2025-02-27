@@ -20,7 +20,7 @@ namespace RedditPing.CLI.Services
         {
             var reportInfo = LoadReportInfo();
             // create new report info
-            if(reportInfo == null || reportInfo.SubredditData == null|| reportInfo.SubredditData.Count < 1)
+            if(reportInfo == null || reportInfo.SubredditData == null || reportInfo.SubredditData.Count < 1)
             {
                 reportInfo = new ReportInfo(); 
                 reportInfo.Date = DateTime.UtcNow.Date.ToString(AppConstants.DateFormat);

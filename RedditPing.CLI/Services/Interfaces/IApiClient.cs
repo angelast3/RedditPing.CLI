@@ -4,7 +4,7 @@ namespace RedditPing.CLI.Services.Interfaces
 {
     public interface IApiClient
     {
-        public Task<IEnumerable<string>> GetAsyncSimulate(string apiPath);
-        public Task<JsonElement> GetAsync(string subreddit);
+        public Task<JsonElement> GetListAsync(string subreddit);
+        public Task<JsonElement> GetObjectAsync(string subreddit);
     }
 }

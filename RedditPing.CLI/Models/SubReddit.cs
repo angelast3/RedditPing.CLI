@@ -9,7 +9,6 @@ public class SubReddit
     public string title { get; set; }
     public string display_name { get; set; }
     public string display_name_prefixed { get; set; }
-    [JsonIgnore]
     public bool over18 { get; set; }
 }
 

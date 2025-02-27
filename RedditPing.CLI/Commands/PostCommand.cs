@@ -41,8 +41,8 @@ namespace RedditPing.CLI.Commands
 
                     _logger.LogInformation("Fetching posts for topic: {Topic}, type: {Type}, limit: {Limit}", topic, type, limit); // Log info
 
-                    var url = AppConstants.PostsBaseUrl + $"r/{topic}/{type.ToString().ToLower()}.json?limit={limit}";
-                    var jsonResponse = await _apiClient.GetAsync(url);
+                    var url = AppConstants.BaseUrl + $"r/{topic}/{type.ToString().ToLower()}.json?limit={limit}";
+                    var jsonResponse = await _apiClient.GetListAsync(url);
 
                     _logger.LogInformation("Received response from API");
 
@@ -95,8 +95,8 @@ namespace RedditPing.CLI.Commands
 
                         foreach (var subredditData in reportnfo.SubredditData)
                         {
-                            var url = AppConstants.PostsBaseUrl + $"{subredditData.Subreddit.display_name_prefixed}/{type.ToString().ToLower()}.json?limit={limit}";
-                            var jsonResponse = await _apiClient.GetAsync(url);
+                            var url = AppConstants.BaseUrl + $"{subredditData.Subreddit.display_name_prefixed}/{type.ToString().ToLower()}.json?limit={limit}";
+                            var jsonResponse = await _apiClient.GetListAsync(url);
 
                             var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse)
                                 ?? [];
@@ -125,7 +125,6 @@ namespace RedditPing.CLI.Commands
                         }
                         _dataStoreService.UpdatePosts(subredditPosts);
 
-                        _logger.LogInformation("Successfully retrieved posts.");
                         Console.WriteLine($"Successfully retrieved posts!");
                     }
                     else

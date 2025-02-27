@@ -14,18 +14,18 @@ namespace RedditPing.CLI.Commands
         private readonly IApiClient _apiClient;
         private readonly IDataStoreService _dataStoreService;
         private readonly ILogger<CommandBuilder> _logger; // Add logger
-        //private readonly ConfigurationOptions _config;
+        private readonly ConfigurationOptions _config;
 
         /// <summary>
         /// Ctor
         /// </summary>
         /// <param name="apiClient"></param>
-        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger)
+        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger, IOptions<ConfigurationOptions> options)
         {
-            //_config = options.Value;
             _apiClient = apiClient;
             _dataStoreService = dataStoreService;
             _logger = logger;
+            _config = options.Value;
         }
 
         public RootCommand BuildRootCommand()

@@ -7,7 +7,7 @@
         public const string CLIName = "rpcli";
 
         // Urls
-        public const string PostsBaseUrl = "https://oauth.reddit.com/";
+        public const string BaseUrl = "https://oauth.reddit.com/";
         public const string SubRedditsBaseUrl = "https://oauth.reddit.com/subreddits/";
 
         //Date formats
