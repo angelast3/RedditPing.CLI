@@ -46,7 +46,7 @@ namespace RedditPing.CLI.Commands
 
                     foreach (var subreddit in redditResponse)
                     {
-                        if (!subreddit.data.over18)
+                        if (!subreddit.data.Over18)
                             Console.WriteLine(JsonSerializer.Serialize(subreddit, new JsonSerializerOptions
                             {
                                 WriteIndented = true,
@@ -56,11 +56,11 @@ namespace RedditPing.CLI.Commands
 
                     var subredditsList = redditResponse.Select(x => new SubReddit
                     {
-                        id = x.data.id,
-                        name = x.data.name,
-                        title = x.data.title,
-                        display_name = x.data.display_name,
-                        display_name_prefixed = x.data.display_name_prefixed
+                        Id = x.data.Id,
+                        Name = x.data.Name,
+                        Title = x.data.Title,
+                        DisplayName = x.data.DisplayName,
+                        DisplayNamePrefixed = x.data.DisplayNamePrefixed
                     }).ToList();
 
                     // Update report data with subreddits
@@ -99,7 +99,7 @@ namespace RedditPing.CLI.Commands
                         var redditDetailsResponse = JsonSerializer.Deserialize<SubReddit>(jsonResponse) 
                             ?? new SubReddit();
 
-                        if (!redditDetailsResponse.over18)
+                        if (!redditDetailsResponse.Over18)
                             Console.WriteLine(JsonSerializer.Serialize(redditDetailsResponse, new JsonSerializerOptions
                             {
                                 WriteIndented = true,
@@ -109,11 +109,11 @@ namespace RedditPing.CLI.Commands
 
                         subredditsList.Add(new SubReddit
                         {
-                            id = redditDetailsResponse.id,
-                            name = redditDetailsResponse.name,
-                            title = redditDetailsResponse.title,
-                            display_name = redditDetailsResponse.display_name,
-                            display_name_prefixed = redditDetailsResponse.display_name_prefixed
+                            Id = redditDetailsResponse.Id,
+                            Name = redditDetailsResponse.Name,
+                            Title = redditDetailsResponse.Title,
+                            DisplayName = redditDetailsResponse.DisplayName,
+                            DisplayNamePrefixed = redditDetailsResponse.DisplayNamePrefixed
                         });
                     }
 

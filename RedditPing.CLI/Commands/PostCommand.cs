@@ -51,7 +51,7 @@ namespace RedditPing.CLI.Commands
 
                     foreach (var post in redditResponse)
                     {
-                        if (!post.data.over_18)
+                        if (!post.data.Over18)
                             Console.WriteLine(JsonSerializer.Serialize(post, new JsonSerializerOptions
                             {
                                 WriteIndented = true,
@@ -95,7 +95,7 @@ namespace RedditPing.CLI.Commands
 
                         foreach (var subredditData in reportnfo.SubredditData)
                         {
-                            var url = AppConstants.BaseUrl + $"{subredditData.Subreddit.display_name_prefixed}/{type.ToString().ToLower()}.json?limit={limit}";
+                            var url = AppConstants.BaseUrl + $"{subredditData.Subreddit.DisplayNamePrefixed}/{type.ToString().ToLower()}.json?limit={limit}";
                             var jsonResponse = await _apiClient.GetListAsync(url);
 
                             var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<RedditPost>>>(jsonResponse)
@@ -104,7 +104,7 @@ namespace RedditPing.CLI.Commands
                             var posts = new List<RedditPost>();
                             foreach (var item in redditResponse)
                             {
-                                if (!item.data.over_18)
+                                if (!item.data.Over18)
                                 {
                                     posts.Add(item.data);
                                     Console.WriteLine(JsonSerializer.Serialize(item, new JsonSerializerOptions
@@ -118,7 +118,7 @@ namespace RedditPing.CLI.Commands
 
                             subredditPosts.Add(new SubredditReport()
                             {
-                                Id = subredditData.Subreddit.id,
+                                Id = subredditData.Subreddit.Id,
                                 Posts = posts
                             });
 

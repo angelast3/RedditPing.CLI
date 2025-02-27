@@ -25,7 +25,6 @@ namespace RedditPing.CLI.Commands
             {
                 try
                 {
-                    // Load data
                     var data = _dataStoreService.LoadReportInfo();
 
                     if (data == null || data.SubredditData == null || !data.SubredditData.Any())
@@ -34,7 +33,6 @@ namespace RedditPing.CLI.Commands
                         return;
                     }
 
-                    // Generate PDF report
                     GenerateDailyReport(data);
                 }
                 catch (Exception ex)
@@ -58,11 +56,9 @@ namespace RedditPing.CLI.Commands
                     page.Margin(2, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(12));
 
-                    // Add title
                     page.Header().Text($"Reddit Report - {reportInfo.Date}")
                         .Style(TextStyle.Default.FontSize(16).Bold());
 
-                    // Add legend
                     page.Content().Column(column =>
                     {
                         column.Item().Text("Legend:")
@@ -82,11 +78,11 @@ namespace RedditPing.CLI.Commands
                             // Get the top 5 posts by average score
                             var allPosts = subredditData.PostsByTimestamp
                                     .SelectMany(t => t.Value)
-                                    .GroupBy(p => p.id) // Group posts by Id
+                                    .GroupBy(p => p.Id) // Group posts by Id
                                     .Select(g => new
                                     {
                                         Post = g.First(), // Use the first post for metadata
-                                        AverageScore = g.Average(p => p.score) // Calculate average score
+                                        AverageScore = g.Average(p => p.Score)
                                     })
                                     .OrderByDescending(p => p.AverageScore)
                                     .ToList();
@@ -124,7 +120,7 @@ namespace RedditPing.CLI.Commands
             var postsByTimestamp = subredditData.PostsByTimestamp;
 
             var plot = new Plot();
-            plot.Title(subreddit.display_name); // Subreddit title as chart title
+            plot.Title(subreddit.DisplayName); // Subreddit title as chart title
             plot.XLabel("Time (hh:mm:ss)");
             plot.YLabel("Score");
 
@@ -142,7 +138,7 @@ namespace RedditPing.CLI.Commands
                 foreach (var post in posts)
                 {
                     // Skip if the post has already been added to the legend
-                    if (addedPosts.Contains(post.id))
+                    if (addedPosts.Contains(post.Id))
                         continue;
 
                     var scores = new double[timestamps.Length];
@@ -150,15 +146,15 @@ namespace RedditPing.CLI.Commands
                     {
                         var currentTimestamp = timestamps[i];
                         scores[i] = postsByTimestamp[currentTimestamp]
-                            .FirstOrDefault(p => p.id == post.id)?.score ?? double.NaN;
+                            .FirstOrDefault(p => p.Id == post.Id)?.Score ?? double.NaN;
                     }
 
                     var line = plot.Add.Scatter(timestamps.Select((t, index) => (double)index).ToArray(), scores);
-                    line.LegendText = post.title;
+                    line.LegendText = post.Title;
                     line.Color = colors[addedPosts.Count % colors.Length];
 
                     // Mark the post as added to the legend
-                    addedPosts.Add(post.id);
+                    addedPosts.Add(post.Id);
                 }
             }
 
@@ -173,7 +169,7 @@ namespace RedditPing.CLI.Commands
             );
 
             // Save the line chart as an image
-            var lineChartImagePath = $"{subreddit.display_name}_linechart.png";
+            var lineChartImagePath = $"{subreddit.DisplayName}_linechart.png";
             plot.SavePng(lineChartImagePath, 800, 600);
             return lineChartImagePath;
         }
@@ -185,25 +181,25 @@ namespace RedditPing.CLI.Commands
                 .Padding(20)
                 .Column(column =>
                 {
-                    column.Item().Text(post.title)
+                    column.Item().Text(post.Title)
                         .Style(TextStyle.Default.FontSize(12).Bold());
 
                     column.Item().Row(row =>
                     {
-                        row.RelativeItem().Text($"▲ {averageScore:F0}")
+                        row.RelativeItem().Text($"Scores: {averageScore:F0}")
                             .Style(TextStyle.Default.FontSize(11).FontColor(QuestPDF.Infrastructure.Color.FromHex("#C9420C")));
-                        row.RelativeItem().Text($"💬 {post.num_comments}")
+                        row.RelativeItem().Text($"Comments: {post.NumComments}")
                             .Style(TextStyle.Default.FontSize(11).FontColor(QuestPDF.Infrastructure.Color.FromHex("#C9420C")));
                     });
 
                     // Link flair text (if available)
-                    if (!string.IsNullOrEmpty(post.link_flair_text))
+                    if (!string.IsNullOrEmpty(post.LinkFlairText))
                     {
-                        column.Item().PaddingBottom(3).Text(post.link_flair_text)
+                        column.Item().PaddingBottom(3).Text(post.LinkFlairText)
                             .Style(TextStyle.Default.FontSize(9).FontColor(QuestPDF.Infrastructure.Color.FromHex("#16161A")));
                     }
 
-                    column.Item().Text(post.url)
+                    column.Item().Text(post.Url)
                         .Style(TextStyle.Default.FontSize(9).FontColor(QuestPDF.Infrastructure.Color.FromHex("#16161A")));
                 });
         }

@@ -55,7 +55,7 @@ namespace RedditPing.CLI.Services
             foreach (var subreddit in reportInfo.SubredditData)
             {
 
-                var sr = subredditPosts.FirstOrDefault(x => x.Id.Equals(subreddit.Subreddit.id));
+                var sr = subredditPosts.FirstOrDefault(x => x.Id.Equals(subreddit.Subreddit.Id));
                 if (sr != null)
                 {
                     if (subreddit.PostsByTimestamp != null)
