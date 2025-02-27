@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
-          echo "CONFIGURATION__TRACKINGSETTINGS__SUBREDDITS=${{ vars.SUBREDDITS }}" >> $GITHUB_ENV
+          echo "CONFIGURATION__TRACKINGSETTINGS__SUBREDDITS=\"${{ vars.SUBREDDITS }}\"" >> $GITHUB_ENV
 
       - name: Set up .NET 8.0
         uses: actions/setup-dotnet@v1
