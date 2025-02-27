@@ -115,7 +115,6 @@ namespace RedditPing.CLI.Commands
                                 }
                             }
 
-
                             subredditPosts.Add(new SubredditReport()
                             {
                                 Id = subredditData.Subreddit.Id,
@@ -129,6 +128,7 @@ namespace RedditPing.CLI.Commands
                     }
                     else
                     {
+                        Console.WriteLine($"Warning: No subreddit data found for report info.");
                         _logger.LogWarning("No subreddit data found for report info.");
                     }
                 }
