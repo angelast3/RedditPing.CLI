@@ -30,7 +30,7 @@ namespace RedditPing.CLI.Commands
 
         public RootCommand BuildRootCommand()
         {
-            Console.WriteLine(_config.ClientConfig?.ClientId);
+            Console.WriteLine(_config.TrackingSettings?.Subreddits);
             
             var rootCommand = new RootCommand
             {
