@@ -90,7 +90,9 @@ namespace RedditPing.CLI.Commands
                     _logger.LogInformation("Fetching subreddits...");
                     var subreddits = _config?.TrackingSettings?.Subreddits ?? [];
 
-                    Console.WriteLine(subreddits);
+                    Console.WriteLine(subreddits[0]);
+                    Console.WriteLine(subreddits[1]);
+                    Console.WriteLine(subreddits[2]);
 
                     List<SubReddit> subredditsList = new();
 
