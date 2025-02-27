@@ -20,18 +20,17 @@ namespace RedditPing.CLI.Commands
         /// Ctor
         /// </summary>
         /// <param name="apiClient"></param>
-        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger, IOptions<ConfigurationOptions> options)
+        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger, ConfigurationOptions options)
         {
             _apiClient = apiClient;
             _dataStoreService = dataStoreService;
             _logger = logger;
-            _config = options.Value;
+            _config = options;
         }
 
         public RootCommand BuildRootCommand()
         {
-            Console.WriteLine(_config.TrackingSettings?.Subreddits);
-            
+           
             var rootCommand = new RootCommand
             {
                 Name = AppConstants.CLIName,

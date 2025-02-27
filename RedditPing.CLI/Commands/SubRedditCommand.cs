@@ -88,42 +88,42 @@ namespace RedditPing.CLI.Commands
                 try
                 {
                     _logger.LogInformation("Fetching subreddits...");
-                    var subreddits = _config?.TrackingSettings?.Subreddits;
+                    var subreddits = _config?.TrackingSettings?.Subreddits ?? [];
 
                     List<SubReddit> subredditsList = new();
 
-                    //foreach (var subreddit in subreddits)
-                    //{
-                    //    var url = AppConstants.BaseUrl + $"r/{subreddit.ToLower()}/about.json";
+                    foreach (var subreddit in subreddits)
+                    {
+                        var url = AppConstants.BaseUrl + $"r/{subreddit.ToLower()}/about.json";
 
-                    //    var jsonResponse = await _apiClient.GetObjectAsync(url);
-                    //    var redditDetailsResponse = JsonSerializer.Deserialize<SubReddit>(jsonResponse) 
-                    //        ?? new SubReddit();
+                        var jsonResponse = await _apiClient.GetObjectAsync(url);
+                        var redditDetailsResponse = JsonSerializer.Deserialize<SubReddit>(jsonResponse) 
+                            ?? new SubReddit();
 
-                    //    if (!redditDetailsResponse.Over18)
-                    //    {
-                    //        Console.WriteLine(JsonSerializer.Serialize(
-                    //        new {
-                    //            redditDetailsResponse.Name,
-                    //            redditDetailsResponse.Title,
-                    //            redditDetailsResponse.DisplayName
-                    //        }, 
-                    //        new JsonSerializerOptions {
-                    //            WriteIndented = true,
-                    //            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        if (!redditDetailsResponse.Over18)
+                        {
+                            Console.WriteLine(JsonSerializer.Serialize(
+                            new {
+                                redditDetailsResponse.Name,
+                                redditDetailsResponse.Title,
+                                redditDetailsResponse.DisplayName
+                            }, 
+                            new JsonSerializerOptions {
+                                WriteIndented = true,
+                                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
 
-                    //        }));
-                    //    }
+                            }));
+                        }
 
-                    //    subredditsList.Add(new SubReddit
-                    //    {
-                    //        Id = redditDetailsResponse.Id,
-                    //        Name = redditDetailsResponse.Name,
-                    //        Title = redditDetailsResponse.Title,
-                    //        DisplayName = redditDetailsResponse.DisplayName,
-                    //        DisplayNamePrefixed = redditDetailsResponse.DisplayNamePrefixed
-                    //    });
-                    //}
+                        subredditsList.Add(new SubReddit
+                        {
+                            Id = redditDetailsResponse.Id,
+                            Name = redditDetailsResponse.Name,
+                            Title = redditDetailsResponse.Title,
+                            DisplayName = redditDetailsResponse.DisplayName,
+                            DisplayNamePrefixed = redditDetailsResponse.DisplayNamePrefixed
+                        });
+                    }
 
                     // Update report data with subreddits
                     _dataStoreService.UpdateSubreddits(subredditsList);
