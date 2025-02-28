@@ -43,3 +43,10 @@ jobs:
       - name: Clear Report Data for Next Cycle
         if: success()
         run: dotnet run --project RedditPing.CLI -- report delete-data
+
+      - name: Save Cleared reportData.json to Cache
+        if: success()
+        uses: actions/cache@v3
+        with:
+          path: reportData.json
+          key: reportData-clean-${{ github.run_id }}
