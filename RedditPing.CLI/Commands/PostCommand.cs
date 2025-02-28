@@ -52,11 +52,29 @@ namespace RedditPing.CLI.Commands
                     foreach (var post in redditResponse)
                     {
                         if (!post.data.Over18)
-                            Console.WriteLine(JsonSerializer.Serialize(post, new JsonSerializerOptions
-                            {
-                                WriteIndented = true,
-                                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                            }));
+                        {
+                            Console.WriteLine(JsonSerializer.Serialize(
+                                new
+                                {
+                                    post.data.Id,
+                                    post.data.Title,
+                                    post.data.Subreddit,
+                                    post.data.Author,
+                                    post.data.UpvoteRatio,
+                                    post.data.Ups,
+                                    post.data.Downs,
+                                    post.data.Score,
+                                    post.data.LinkFlairText,
+                                    post.data.NumComments,
+                                    post.data.Url
+                                },
+                                new JsonSerializerOptions
+                                {
+                                    WriteIndented = true,
+                                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                                }
+                            ));
+                        }
                     }
                 }
                 catch (Exception ex)

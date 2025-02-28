@@ -47,11 +47,21 @@ namespace RedditPing.CLI.Commands
                     foreach (var subreddit in redditResponse)
                     {
                         if (!subreddit.data.Over18)
-                            Console.WriteLine(JsonSerializer.Serialize(subreddit, new JsonSerializerOptions
+                        {
+                            Console.WriteLine(JsonSerializer.Serialize(
+                            new
+                            {
+                                subreddit.data.Name,
+                                subreddit.data.Title,
+                                subreddit.data.DisplayName
+                            },
+                            new JsonSerializerOptions
                             {
                                 WriteIndented = true,
                                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+
                             }));
+                        }
                     }
 
                     var subredditsList = redditResponse.Select(x => new SubReddit
