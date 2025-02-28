@@ -45,9 +45,10 @@ public class Program
         var logger = serviceProvider.GetRequiredService<ILogger<CommandBuilder>>();
         var apiClient = serviceProvider.GetService<IApiClient>();
         var dataStoreService = serviceProvider.GetService<IDataStoreService>();
+        var reportService = serviceProvider.GetService<IReportService>();
 
         // Define the root command
-        var rootCommand = new CommandBuilder(apiClient, dataStoreService, logger, options).BuildRootCommand();
+        var rootCommand = new CommandBuilder(apiClient, dataStoreService, logger, options, reportService).BuildRootCommand();
 
         // Check if 'exit' command is passed
         if (args.Length > 0 && args.Any(x => x.Equals("exit", StringComparison.OrdinalIgnoreCase)))
@@ -106,7 +107,6 @@ public class Program
             .AddSingleton<IAuthenticationTokenService, AuthenticationTokenService>()
             .AddTransient<IDataStoreService, DataStoreService>()
             .AddSingleton<IReportService, ReportService>()
-            .AddSingleton<ISchedulerService, SchedulerService>()
             .AddLogging(builder =>
             {
                 builder.ClearProviders();

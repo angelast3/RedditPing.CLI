@@ -26,17 +26,20 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
 
       - name: Run CLI report generation
-        run: dotnet run --project RedditPing.CLI -- report daily || exit 1
+        run: dotnet run --project RedditPing.CLI -- report generate || exit 1
 
       - name: Upload Daily Report
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: DailyReport
           path: DailyReport.pdf
           if-no-files-found: error
 
+      - name: Clear Report Data for Next Cycle
+        if: success()
+        run: dotnet run --project RedditPing.CLI -- report delete-data
