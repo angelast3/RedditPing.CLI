@@ -13,7 +13,6 @@ namespace RedditPing.CLI.Commands
         public Command BuildSubredditCommand()
         {
             var postCommand = new Command("subreddit", "Search subreddits");
-
             postCommand.AddCommand(ListSubredditsCommand());
             postCommand.AddCommand(AddSubredditsCommand());
 
@@ -39,11 +38,11 @@ namespace RedditPing.CLI.Commands
                     _logger.LogInformation("Fetching subreddits, type: {Type}, limit: {Limit}", type, limit);
 
                     var url = AppConstants.SubRedditsBaseUrl + $"{type.ToString().ToLower()}.json?limit={limit}";
-
                     var jsonResponse = await _apiClient.GetListAsync(url);
                     var redditResponse = JsonSerializer.Deserialize<List<RedditResponse<SubReddit>>>(jsonResponse)
                         ?? [];
 
+                    // Print subreddits in Console
                     foreach (var subreddit in redditResponse)
                     {
                         if (!subreddit.data.Over18)
@@ -81,7 +80,7 @@ namespace RedditPing.CLI.Commands
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error fetching subreddits"); // Log error
+                    _logger.LogError(ex, "Error fetching subreddits");
                     Console.WriteLine($"Error: {ex.Message}");
                 }
             });
@@ -151,5 +150,4 @@ namespace RedditPing.CLI.Commands
             return subCommand;
         }
     }
-
 }

@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,7 +40,6 @@ public class Program
         if (subredditsList != null)
             options.TrackingSettings.Subreddits = subredditsList;
         
-
         // Register services and resolve dependencies
         var serviceProvider = BuildServiceProvider(configuration);
         var logger = serviceProvider.GetRequiredService<ILogger<CommandBuilder>>();
@@ -95,27 +95,30 @@ public class Program
 
     private static ServiceProvider BuildServiceProvider(IConfiguration configuration)
     {
-        Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
-            .WriteTo.File("Logs/app.log", rollingInterval: RollingInterval.Day)
-            .WriteTo.Console(restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error)
-            .CreateLogger();
-
         var serviceCollection = new ServiceCollection()
             .Configure<ConfigurationOptions>(configuration.GetSection("Configuration"))
             .AddSingleton<IApiClient, ApiClient>()
-            .AddSingleton<IAuthenticationTokenService, AuthenticationTokenService>()
+            .AddSingleton<IAuthenticationService, AuthenticationService>()
             .AddTransient<IDataStoreService, DataStoreService>()
             .AddSingleton<IReportService, ReportService>()
             .AddLogging(builder =>
             {
                 builder.ClearProviders();
-                builder.AddSerilog();
             });
 
         serviceCollection.AddHttpClient("RedditApi", client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        // Configure Serilog from appsettings.json
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .CreateLogger();
+
+        serviceCollection.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.AddSerilog(Log.Logger);
         });
 
         return serviceCollection.BuildServiceProvider();

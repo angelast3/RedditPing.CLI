@@ -28,16 +28,16 @@ jobs:
             exit 1
           fi
 
-      - name: Set environment variables
+      - name: Set repository variables
         run: |
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
           echo "CONFIGURATION__CLIENTCONFIG__CLIENTSECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "CONFIGURATION__TRACKINGSETTINGS__SUBREDDITS=\"${{ vars.SUBREDDITS }}\"" >> $GITHUB_ENV
 
-      - name: Set up .NET 8.0
+      - name: Set up .NET 9.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1
 

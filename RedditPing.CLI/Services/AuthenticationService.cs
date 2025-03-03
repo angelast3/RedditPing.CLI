@@ -7,29 +7,35 @@ using RedditPing.CLI.Services.Interfaces;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-public class AuthenticationTokenService : IAuthenticationTokenService
+public class AuthenticationService : IAuthenticationService
 {
     private TokenInfo _accessToken = new();
     private readonly ConfigurationOptions _config;
     private readonly HttpClient _httpClient = new HttpClient();
-    private readonly ILogger<AuthenticationTokenService> _logger;
+    private readonly ILogger<AuthenticationService> _logger;
 
-    public AuthenticationTokenService(IOptions<ConfigurationOptions> options, ILogger<AuthenticationTokenService> logger)
+    public AuthenticationService(IOptions<ConfigurationOptions> options, ILogger<AuthenticationService> logger)
     {
         _config = options.Value;
         _logger = logger;
     }
 
+    /// <summary>
+    /// Check for existing access token for Reddit requests
+    /// </summary>
+    /// <returns></returns>
     public async Task<string?> GetAccessToken()
     {
         if (string.IsNullOrWhiteSpace(_accessToken.AccessToken) || (_accessToken.ExpirationTime < DateTime.UtcNow.AddMinutes(5)))
             await SetAccessTokenAsync();
-        else if (!string.IsNullOrWhiteSpace(_accessToken.AccessToken) && _accessToken.ExpirationTime < DateTime.UtcNow)
-            _accessToken = new TokenInfo();
 
         return _accessToken.AccessToken;
     }
 
+    /// <summary>
+    /// Generate existing access token for Reddit requests
+    /// </summary>
+    /// <returns></returns>
     public async Task SetAccessTokenAsync()
     {
         try

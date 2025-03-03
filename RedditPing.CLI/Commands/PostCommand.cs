@@ -23,11 +23,11 @@ namespace RedditPing.CLI.Commands
         private Command ListPostsCommand()
         {
             var subCommand = new Command("list", "List posts based on a subreddit");
-            var topicOption = new Option<string>(aliases: ["-sr", "-subreddit"], "Topic to filter posts by");
+            var subredditOption = new Option<string>(aliases: ["-sr", "-subreddit"], "Subreddit to filter posts by");
             var typeOption = new Option<PostType>(aliases: ["-st", "-search-type"], () => 0, "Search posts by type. Hot - 0, New - 1, Top - 2, Rising - 3");
             var limitOption = new Option<int>(aliases: ["-l", "-limit"], () => 10, "Number of posts to fetch");
 
-            subCommand.AddOption(topicOption);
+            subCommand.AddOption(subredditOption);
             subCommand.AddOption(typeOption);
             subCommand.AddOption(limitOption);
 
@@ -35,13 +35,13 @@ namespace RedditPing.CLI.Commands
             {
                 try
                 {
-                    var topic = h.ParseResult.GetValueForOption(topicOption);
+                    var subreddit = h.ParseResult.GetValueForOption(subredditOption);
                     var type = h.ParseResult.GetValueForOption(typeOption);
                     var limit = h.ParseResult.GetValueForOption(limitOption);
 
-                    _logger.LogInformation("Fetching posts for topic: {Topic}, type: {Type}, limit: {Limit}", topic, type, limit); // Log info
+                    _logger.LogInformation("Fetching posts for subreddit: {Subreddit}, type: {Type}, limit: {Limit}", subreddit, type, limit); // Log info
 
-                    var url = AppConstants.BaseUrl + $"r/{topic}/{type.ToString().ToLower()}.json?limit={limit}";
+                    var url = AppConstants.BaseUrl + $"r/{subreddit}/{type.ToString().ToLower()}.json?limit={limit}";
                     var jsonResponse = await _apiClient.GetListAsync(url);
 
                     _logger.LogInformation("Received response from API");

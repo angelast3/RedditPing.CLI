@@ -21,10 +21,10 @@ jobs:
           restore-keys: |
             reportData-
 
-      - name: Set up .NET 8.0
+      - name: Set up .NET 9.0
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Build CLI
         run: dotnet build --configuration Release RedditPing.CLI/RedditPing.CLI.csproj || exit 1

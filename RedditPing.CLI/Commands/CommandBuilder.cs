@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using RedditPing.CLI.Configuration.Model;
 using RedditPing.CLI.Constants;
 using RedditPing.CLI.Services.Interfaces;
@@ -13,7 +10,7 @@ namespace RedditPing.CLI.Commands
     {
         private readonly IApiClient _apiClient;
         private readonly IDataStoreService _dataStoreService;
-        private readonly ILogger<CommandBuilder> _logger; // Add logger
+        private readonly ILogger<CommandBuilder> _logger;
         private readonly ConfigurationOptions _config;
         private readonly IReportService _reportService;
 
@@ -21,7 +18,8 @@ namespace RedditPing.CLI.Commands
         /// Ctor
         /// </summary>
         /// <param name="apiClient"></param>
-        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger, ConfigurationOptions options, IReportService reportService)
+        public CommandBuilder(IApiClient apiClient, IDataStoreService dataStoreService, ILogger<CommandBuilder> logger,
+            ConfigurationOptions options, IReportService reportService)
         {
             _apiClient = apiClient;
             _dataStoreService = dataStoreService;
@@ -30,13 +28,17 @@ namespace RedditPing.CLI.Commands
             _reportService = reportService;
         }
 
+        /// <summary>
+        /// Builds the root Command object with all sub-commands.
+        /// </summary>
+        /// <returns>Main RootCommand command.</returns>
         public RootCommand BuildRootCommand()
         {
            
             var rootCommand = new RootCommand
             {
                 Name = AppConstants.CLIName,
-                Description = "A CLI app for interacting with Reddit"
+                Description = "A CLI app for fetching and processing data from Reddit"
             };
 
             //Add commands

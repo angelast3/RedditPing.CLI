@@ -87,7 +87,7 @@ namespace RedditPing.CLI.Services
             // Add the new subreddits
             foreach (var subreddit in subreddits)
             {
-                // Avoid adding duplicate subreddits if necessary (optional)
+                // Avoid adding duplicate subreddits
                 if (!reportInfo.SubredditData.Any(s => s.Subreddit.Id == subreddit.Id))
                 {
                     reportInfo.SubredditData.Add(new SubredditData

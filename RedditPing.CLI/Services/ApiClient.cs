@@ -8,10 +8,10 @@ namespace RedditPing.CLI.Services;
 public class ApiClient : IApiClient
 {
     private readonly HttpClient _httpClient;
-    private readonly IAuthenticationTokenService _authenticationTokenService;
+    private readonly IAuthenticationService _authenticationTokenService;
     private readonly ILogger<ApiClient> _logger;
 
-    public ApiClient(IAuthenticationTokenService authenticationTokenService, HttpClient httpClient, ILogger<ApiClient> logger)
+    public ApiClient(IAuthenticationService authenticationTokenService, HttpClient httpClient, ILogger<ApiClient> logger)
     {
         _httpClient = httpClient;
         _authenticationTokenService = authenticationTokenService;
