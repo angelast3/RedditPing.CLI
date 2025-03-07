@@ -45,8 +45,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: daily-reports
-          release_name: "Daily Reports"
-          draft: false
+          name: "Daily Reports"
           prerelease: false
           files: DailyReport.pdf
 
