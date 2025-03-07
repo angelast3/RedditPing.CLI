@@ -27,7 +27,7 @@ namespace RedditPing.CLI.Services
 
                     page.Header().ShowOnce().Row(row =>
                     {
-                        row.ConstantItem(100).PaddingRight(20).Image(lockupPath)
+                        row.ConstantItem(120).PaddingRight(20).Image(lockupPath)
                             .FitWidth();
                         //row.ConstantItem(50).PaddingRight(20).Image(logoPath)
                         //    .FitWidth();
@@ -50,10 +50,10 @@ namespace RedditPing.CLI.Services
                             column.Item().PaddingBottom(20);
 
                             column.Item()
-                                .BorderBottom(1)
+                                .BorderBottom((float)0.5)
                                 .BorderColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500"))
                                 .PaddingBottom(5).Text("Trending Posts")
-                                .Style(TextStyle.Default.FontSize(12).Bold().FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500")));
+                                .Style(TextStyle.Default.FontSize(12).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500")));
 
                             var allPosts = subredditData.PostsByTimestamp
                                     .SelectMany(t => t.Value)
@@ -90,7 +90,7 @@ namespace RedditPing.CLI.Services
             var subreddit = subredditData.Subreddit;
             var postsByTimestamp = subredditData.PostsByTimestamp;
 
-             var plot = new Plot();
+            var plot = new Plot();
             plot.Title(subreddit.DisplayName);
             plot.XLabel("Time (hh:mm:ss)");
             plot.YLabel("Score");
@@ -131,7 +131,7 @@ namespace RedditPing.CLI.Services
             }
 
             // Add a legend
-            plot.ShowLegend(Edge.Bottom);
+            plot.ShowLegend(Edge.Bottom).Padding = new PixelPadding(0, 0, 0, 50);
             plot.Legend.OutlineWidth = (float)0.7;
             plot.Legend.OutlineColor = ScottPlot.Color.FromHex("#AFAEAE");
             plot.Legend.ShadowColor = ScottPlot.Color.FromHex("#FFFFFF");
