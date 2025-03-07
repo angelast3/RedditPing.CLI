@@ -40,6 +40,16 @@ jobs:
           path: DailyReport.pdf
           if-no-files-found: error
 
+      - name: Upload Daily Report to Release
+        if: success()
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: daily-reports
+          release_name: "Daily Reports"
+          draft: false
+          prerelease: false
+          files: DailyReport.pdf
+
       - name: Clear Report Data for Next Cycle
         if: success()
         run: dotnet run --project RedditPing.CLI -- report delete-data

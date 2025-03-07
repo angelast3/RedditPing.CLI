@@ -27,11 +27,11 @@ namespace RedditPing.CLI.Services
 
                     page.Header().ShowOnce().Row(row =>
                     {
-                        //row.ConstantItem(150).Image(lockupPath)
-                        //    .FitWidth();
-                        row.ConstantItem(50).PaddingRight(20).Image(logoPath)
+                        row.ConstantItem(100).PaddingRight(20).Image(lockupPath)
                             .FitWidth();
-                        row.RelativeItem().AlignMiddle().Text($"Report {reportInfo.Date}")
+                        //row.ConstantItem(50).PaddingRight(20).Image(logoPath)
+                        //    .FitWidth();
+                        row.RelativeItem().AlignMiddle().Text($"Report  {DateTime.UtcNow.ToShortDateString()}")
                             .Style(TextStyle.Default.FontSize(17).Bold());
                     });
 
@@ -42,7 +42,7 @@ namespace RedditPing.CLI.Services
                         foreach (var subredditData in reportInfo.SubredditData)
                         {
                             // Subreddit title
-                            column.Item().PaddingTop(30).Text(subredditData.Subreddit.DisplayName.ToString().ToUpper())
+                            column.Item().PaddingTop(20).Text(subredditData.Subreddit.DisplayName.ToString().ToUpper())
                                 .Style(TextStyle.Default.FontSize(15).Bold().FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500")));
 
                             var lineChartImagePath = GenerateLineChart(subredditData);
@@ -66,7 +66,7 @@ namespace RedditPing.CLI.Services
                                     .OrderByDescending(p => p.AverageScore)
                                     .ToList();
 
-                            // Display the top post
+                            // Display the top post first 
                             var topPost = allPosts.First();
                             ComposePostCard(column.Item(), topPost.Post, topPost.AverageScore, isTopPost: true);
 
@@ -80,7 +80,6 @@ namespace RedditPing.CLI.Services
                 });
             });
 
-            // Save the PDF
             document.GeneratePdf("DailyReport.pdf");
             Console.WriteLine($"Daily report generated successfully.");
         }
@@ -96,10 +95,11 @@ namespace RedditPing.CLI.Services
             plot.XLabel("Time (hh:mm:ss)");
             plot.YLabel("Score");
 
-            // Add a line for each post
-            var colors = new[] { ScottPlot.Colors.Red, ScottPlot.Colors.Green, ScottPlot.Colors.Blue,
-                ScottPlot.Colors.Orange, ScottPlot.Colors.Purple, ScottPlot.Colors.Pink, ScottPlot.Colors.Black };
-            var timestamps = postsByTimestamp.Keys.OrderBy(t => t).ToArray(); // Sorted timestamps
+            // Add a line color for each post
+            var colors = new[] { ScottPlot.Colors.Red, ScottPlot.Colors.Green, ScottPlot.Colors.Blue, ScottPlot.Colors.Orange, ScottPlot.Colors.Purple,
+                ScottPlot.Colors.Pink, ScottPlot.Colors.Black,ScottPlot.Colors.Brown, ScottPlot.Colors.Cyan, ScottPlot.Colors.Magenta, 
+                ScottPlot.Colors.Yellow, ScottPlot.Colors.Lime, ScottPlot.Colors.Teal };
+            var timestamps = postsByTimestamp.Keys.ToArray();
 
             // Track posts that have already been added to the legend
             var addedPosts = new HashSet<string>();
@@ -132,17 +132,21 @@ namespace RedditPing.CLI.Services
 
             // Add a legend
             plot.ShowLegend(Edge.Bottom);
+            plot.Legend.OutlineWidth = (float)0.7;
+            plot.Legend.OutlineColor = ScottPlot.Color.FromHex("#AFAEAE");
+            plot.Legend.ShadowColor = ScottPlot.Color.FromHex("#FFFFFF");
             plot.Legend.FontSize = 12;
 
             // Customize X-axis to show time (hh:mm:ss) as labels
             plot.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.NumericManual(
                 positions: timestamps.Select((t, index) => (double)index).ToArray(),
-                labels: timestamps
+                labels: timestamps.Select(t => t.ToString()).ToArray()
             );
 
             plot.Axes.Bottom.TickLabelStyle.Rotation = 45; 
             plot.Axes.Bottom.TickLabelStyle.OffsetY = 20;
-            plot.Axes.Bottom.Label.OffsetY = 20;
+            plot.Axes.Bottom.Label.OffsetY = 25;
+            plot.Axes.Bottom.Label.Padding = 5;
 
             // Save the line chart as an image
             var lineChartImagePath = $"{subreddit.DisplayName}_linechart.png";
@@ -154,24 +158,28 @@ namespace RedditPing.CLI.Services
         {
             container
                 .Border(0)
-                .Padding(20)
+                .PaddingTop(15)
                 .Column(column =>
                 {
                     column.Item().Text(post.Title)
                         .Style(TextStyle.Default.FontSize(12).Bold());
 
-                    column.Item().Row(row =>
+                    column.Item().PaddingBottom(5).PaddingTop(5).Row(row =>
                     {
-                        row.RelativeItem().Text($"Scores {averageScore:F0}")
-                            .Style(TextStyle.Default.FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500")));
-                        row.RelativeItem().Text($"Comments {post.NumComments}")
-                            .Style(TextStyle.Default.FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500")));
+                        row.ConstantItem(300).Text(text =>
+                        {
+                            text.Span("Score ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
+                            text.Span($"{averageScore:F0}   ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500"));
+                            
+                            text.Span("Comments ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
+                            text.Span($"{post.NumComments}").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500"));
+                        });
                     });
 
                     if (!string.IsNullOrEmpty(post.LinkFlairText))
                     {
-                        column.Item().PaddingBottom(3).Text(post.LinkFlairText)
-                            .Style(TextStyle.Default.FontSize(9).FontColor(QuestPDF.Infrastructure.Color.FromHex("#16161A")).Bold());
+                        column.Item().PaddingBottom(3).PaddingLeft(10).Text(post.LinkFlairText)
+                            .Style(TextStyle.Default.FontSize(9).FontColor(QuestPDF.Infrastructure.Color.FromHex("#464646")).Bold());
                     }
 
                     column.Item().Text(post.Url)
