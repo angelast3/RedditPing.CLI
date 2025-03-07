@@ -20,7 +20,9 @@ jobs:
           key: reportData-${{ github.run_id }}-${{ hashFiles('reportData.json') }}
           restore-keys: |
             reportData-
-
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          
       - name: Set up .NET 9.0
         uses: actions/setup-dotnet@v1
         with:
