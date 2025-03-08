@@ -20,7 +20,7 @@ jobs:
           key: reportData-${{ github.run_id }}-${{ hashFiles('reportData.json') }}
           restore-keys: |
             reportData-
-
+          
       - name: Set up .NET 9.0
         uses: actions/setup-dotnet@v1
         with:
@@ -45,10 +45,11 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: daily-reports
-          release_name: "Daily Reports"
-          draft: false
+          name: "Daily Reports"
           prerelease: false
           files: DailyReport.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Clear Report Data for Next Cycle
         if: success()
