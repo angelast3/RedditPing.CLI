@@ -20,7 +20,11 @@ jobs:
           key: reportData-${{ github.run_id }}-${{ hashFiles('reportData.json') }}
           restore-keys: |
             reportData-
-          
+      
+      - name: Set Current Date
+        id: date
+        run: echo "today=$(date +'%d-%m-%Y')" >> $GITHUB_OUTPUT
+
       - name: Set up .NET 9.0
         uses: actions/setup-dotnet@v1
         with:
@@ -32,12 +36,15 @@ jobs:
       - name: Run CLI report generation
         run: dotnet run --project RedditPing.CLI -- report generate || exit 1
 
+      - name: Rename Daily Report
+        run: mv DailyReport.pdf DailyReport_${{ steps.date.outputs.today }}.pdf
+
       - name: Upload Daily Report
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: DailyReport
-          path: DailyReport.pdf
+          path: DailyReport_${{ steps.date.outputs.today }}.pdf
           if-no-files-found: error
 
       - name: Upload Daily Report to Release
@@ -47,7 +54,7 @@ jobs:
           tag_name: daily-reports
           name: "Daily Reports"
           prerelease: false
-          files: DailyReport.pdf
+          files: DailyReport_${{ steps.date.outputs.today }}.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
