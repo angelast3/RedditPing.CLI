@@ -107,7 +107,7 @@ namespace RedditPing.CLI.Services
             foreach (var timestamp in timestamps)
             {
                 var posts = postsByTimestamp[timestamp];
-                foreach (var post in posts)
+                foreach (var post in posts.Take(3))
                 {
                     // Skip if the post has already been added to the legend
                     if (addedPosts.Contains(post.Id))
@@ -122,7 +122,7 @@ namespace RedditPing.CLI.Services
                     }
 
                     var line = plot.Add.Scatter(timestamps.Select((t, index) => (double)index).ToArray(), scores);
-                    line.LegendText = post.Title;
+                    line.LegendText = post.Title.Length > 100 ? post.Title.Substring(0, 100) + "..." : post.Title;
                     line.Color = colors[addedPosts.Count % colors.Length];
 
                     // Mark the post as added to the legend
@@ -131,7 +131,7 @@ namespace RedditPing.CLI.Services
             }
 
             // Add a legend
-            plot.ShowLegend(Edge.Bottom).Padding = new PixelPadding(0, 0, 0, 50);
+            plot.ShowLegend(Edge.Bottom).Padding = new PixelPadding(0, 0, 0, 70);
             plot.Legend.OutlineWidth = (float)0.7;
             plot.Legend.OutlineColor = ScottPlot.Color.FromHex("#AFAEAE");
             plot.Legend.ShadowColor = ScottPlot.Color.FromHex("#FFFFFF");
@@ -146,11 +146,11 @@ namespace RedditPing.CLI.Services
             plot.Axes.Bottom.TickLabelStyle.Rotation = 45; 
             plot.Axes.Bottom.TickLabelStyle.OffsetY = 20;
             plot.Axes.Bottom.Label.OffsetY = 25;
-            plot.Axes.Bottom.Label.Padding = 5;
+            plot.Axes.Bottom.Label.Padding = 10;
 
             // Save the line chart as an image
             var lineChartImagePath = $"{subreddit.DisplayName}_linechart.png";
-            plot.SavePng(lineChartImagePath, 800, 600);
+            plot.SavePng(lineChartImagePath, 800, 700);
             return lineChartImagePath;
         }
 
@@ -158,28 +158,28 @@ namespace RedditPing.CLI.Services
         {
             container
                 .Border(0)
-                .PaddingTop(15)
+                .PaddingTop(12)
                 .Column(column =>
                 {
                     column.Item().Text(post.Title)
-                        .Style(TextStyle.Default.FontSize(12).Bold());
+                        .Style(TextStyle.Default.FontSize(10).Bold());
 
-                    column.Item().PaddingBottom(5).PaddingTop(5).Row(row =>
+                    column.Item().PaddingBottom(3).PaddingTop(3).Row(row =>
                     {
                         row.ConstantItem(300).Text(text =>
                         {
-                            text.Span("Score ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
+                            text.Span("Score ").FontSize(7).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
                             text.Span($"{averageScore:F0}   ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500"));
                             
-                            text.Span("Comments ").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
+                            text.Span("Comments ").FontSize(7).FontColor(QuestPDF.Infrastructure.Color.FromHex("000000"));
                             text.Span($"{post.NumComments}").FontSize(10).FontColor(QuestPDF.Infrastructure.Color.FromHex("#FF4500"));
                         });
                     });
 
                     if (!string.IsNullOrEmpty(post.LinkFlairText))
                     {
-                        column.Item().PaddingBottom(3).PaddingLeft(10).Text(post.LinkFlairText)
-                            .Style(TextStyle.Default.FontSize(9).FontColor(QuestPDF.Infrastructure.Color.FromHex("#464646")).Bold());
+                        column.Item().PaddingBottom(2).PaddingLeft(8).Text(post.LinkFlairText)
+                            .Style(TextStyle.Default.FontSize(8).FontColor(QuestPDF.Infrastructure.Color.FromHex("#464646")).Bold());
                     }
 
                     column.Item().Text(post.Url)
