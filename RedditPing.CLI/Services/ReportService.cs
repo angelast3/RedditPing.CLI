@@ -107,7 +107,7 @@ namespace RedditPing.CLI.Services
             foreach (var timestamp in timestamps)
             {
                 var posts = postsByTimestamp[timestamp];
-                foreach (var post in posts.Take(3))
+                foreach (var post in posts)
                 {
                     // Skip if the post has already been added to the legend
                     if (addedPosts.Contains(post.Id))
